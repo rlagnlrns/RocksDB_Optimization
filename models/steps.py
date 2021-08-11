@@ -324,7 +324,7 @@ from scipy.spatial import distance
 def numpy_to_df(numpy_):
     return pd.DataFrame(numpy_)
 
-def generation_combined_workload(wk_internal_metrics, wk_external_metrics, target_wk, target_size, logger, target_ex, iscombined, target_result_path):
+def generation_combined_workload(wk_internal_metrics, wk_external_metrics, target_wk, target_size, logger, target_ex, iscombined):
     '''
         wk_internal_metrics
         target_wk : target workload number
@@ -340,8 +340,10 @@ def generation_combined_workload(wk_internal_metrics, wk_external_metrics, targe
         if i == target_wk:
             if target_wk < 16:
                 df_wk_internal_metric = df_wk_internal_metric.sample(target_size)
-            elif target_wk > 15:
-                df_wk_internal_metric = pd.read_csv(os.path.join(target_result_path, target_wk, 'external_results_11.csv'), index_col=0)
+            
+        if target_wk > 15:
+            target_wk = 16
+            #     df_wk_internal_metric = pd.read_csv(os.path.join(target_result_path, target_wk, 'external_results_11.csv'), index_col=0)
         wk_stats = df_wk_internal_metric.describe().T.drop(columns=drop_columns)
         wk_stats_list.append(wk_stats.T)
 
@@ -351,6 +353,7 @@ def generation_combined_workload(wk_internal_metrics, wk_external_metrics, targe
     ## Get Mahalanobis distance list
     int_idx = wk_stats_list[0].columns
     wk_mah_dis = {}
+
     for wk, wk_stats in enumerate(wk_stats_list):
         sum_d = 0
         for idx in int_idx:
